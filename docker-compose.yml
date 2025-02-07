@@ -1,0 +1,10 @@
+services:
+  react-nice-audio-player:
+    image: react-nice-audio-player
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: developpment
+    ports:
+      - 8080:8080
