@@ -24,7 +24,7 @@ function App() {
             onMouseEnter={() => setHoveredTrackId(track.id)}
             onMouseLeave={() => setHoveredTrackId(null)}
             className={`grid grid-flow-col grid-cols-4 border border-gray-300 w-full px-4 py-1 my-1 rounded-xl hover:bg-amber-100 cursor-pointer ${
-              currentTrackId === track.id ? 'bg-amber-100' : ''
+              currentTrackId === track.id ? 'bg-white' : ''
             }`}
           >
             <div className="text-lg text-gray-800 font-semibold text-start">

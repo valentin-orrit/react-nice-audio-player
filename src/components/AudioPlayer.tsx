@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2 } from 'lucide-react'
+import { Play, Pause, Volume2, Repeat } from 'lucide-react'
 import { trackData } from '../data/tracks'
 
 interface AudioPlayerProps {
@@ -26,15 +26,7 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
   // Timer ref for updating current time
   const timeUpdateRef = useRef<number>(0)
 
-  // Loop track if is a loop
-  useEffect(() => {
-    if (currentTrack && currentTrack.loop) {
-      setIsLooping(true)
-    } else {
-      setIsLooping(false)
-    }
-  }, [currentTrack])
-
+  // clean up audioContext
   useEffect(() => {
     return () => {
       if (audioContextRef.current?.state !== 'closed') {
@@ -43,9 +35,22 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
     }
   }, [])
 
+  // process when selecting a new track in the list
   useEffect(() => {
     if (currentTrack) {
-      loadAudio()
+      if (currentTrack.loop) {
+        setIsLooping(true)
+      } else {
+        setIsLooping(false)
+      }
+
+      if (sourceNodeRef.current) {
+        sourceNodeRef.current.stop()
+      }
+
+      loadAudio().then(() => {
+        togglePlay()
+      })
     }
     return () => {
       sourceNodeRef.current?.stop()
@@ -168,9 +173,21 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
               <Play size={24} className="text-amber-800" />
             )}
           </button>
+          <button
+            onClick={() => setIsLooping(!isLooping)}
+            className={`p-2 rounded-full hover:bg-amber-100 ${
+              isLooping ? 'bg-amber-100' : ''
+            }`}
+            disabled={!currentTrack}
+          >
+            <Repeat
+              size={20}
+              className={`${isLooping ? 'text-amber-800' : 'text-gray-400'}`}
+            />
+          </button>
         </div>
         <h3 className="text-lg font-semibold text-gray-800">
-          {currentTrack?.title || 'No track selected'}
+          {currentTrack?.title || 'select a track'}
         </h3>
         <p className="text-sm text-gray-600">{currentTrack?.author}</p>
 
