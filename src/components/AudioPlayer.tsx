@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2, Repeat } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { Play, Pause, Volume2 } from 'lucide-react'
 import { trackData } from '../data/tracks'
 
 interface AudioPlayerProps {
@@ -24,21 +24,18 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
   const pausedAtRef = useRef<number>(0)
 
   // Timer ref for updating current time
-  const timeUpdateRef = useRef<number>()
+  const timeUpdateRef = useRef<number>(0)
 
+  // Loop track if is a loop
   useEffect(() => {
-    if (currentTrack) {
-      setIsLooping(currentTrack.loop || false)
+    if (currentTrack && currentTrack.loop) {
+      setIsLooping(true)
+    } else {
+      setIsLooping(false)
     }
   }, [currentTrack])
 
   useEffect(() => {
-    // Initialize Audio Context
-    audioContextRef.current = new (window.AudioContext ||
-      (window as any).webkitAudioContext)()
-    gainNodeRef.current = audioContextRef.current.createGain()
-    gainNodeRef.current.connect(audioContextRef.current.destination)
-
     return () => {
       if (audioContextRef.current?.state !== 'closed') {
         audioContextRef.current?.close()
@@ -96,18 +93,25 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
     sourceNodeRef.current.start(0, startFrom)
   }
 
-  const updatePlaybackTime = () => {
-    if (!audioContextRef.current || !isPlaying) return
-
-    const currentTime =
-      audioContextRef.current.currentTime - startTimeRef.current
-    setCurrentTime(currentTime)
-
-    timeUpdateRef.current = requestAnimationFrame(updatePlaybackTime)
+  const initializeAudioContext = () => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext ||
+        (window as any).webkitAudioContext)()
+      gainNodeRef.current = audioContextRef.current.createGain()
+      gainNodeRef.current.connect(audioContextRef.current.destination)
+    }
   }
 
-  const togglePlay = () => {
-    if (!audioContextRef.current || !audioBufferRef.current) return
+  const togglePlay = async () => {
+    initializeAudioContext()
+
+    if (!audioContextRef.current) return
+
+    if (!audioBufferRef.current && currentTrack) {
+      await loadAudio()
+    }
+
+    if (!audioBufferRef.current) return
 
     if (isPlaying) {
       sourceNodeRef.current?.stop()
@@ -120,6 +124,15 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
     }
 
     setIsPlaying(!isPlaying)
+  }
+  const updatePlaybackTime = () => {
+    if (!audioContextRef.current || !isPlaying) return
+
+    const currentTime =
+      audioContextRef.current.currentTime - startTimeRef.current
+    setCurrentTime(currentTime)
+
+    timeUpdateRef.current = requestAnimationFrame(updatePlaybackTime)
   }
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +155,7 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
 
   return (
     <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg p-4 mt-8">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center justify-center gap-4">
           <button
             onClick={togglePlay}
@@ -169,23 +182,21 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
             step="0.01"
             value={currentTime}
             onChange={handleSeek}
-            className="flex-1"
+            className="flex-1 accent-amber-700"
           />
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Volume2 size={20} className="text-gray-600" />
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={handleVolumeChange}
-              className="w-20"
-            />
-          </div>
+        <div className="flex items-center gap-2">
+          <Volume2 size={20} className="text-gray-600" />
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={handleVolumeChange}
+            className="w-20 accent-amber-700"
+          />
         </div>
       </div>
     </div>

@@ -13,30 +13,8 @@ function App() {
 
   const currentTrack = tracks.find((track) => track.id === currentTrackId)
 
-  const handleNext = () => {
-    if (currentTrackId) {
-      const currentIndex = tracks.findIndex(
-        (track) => track.id === currentTrackId
-      )
-      if (currentIndex < tracks.length - 1) {
-        setCurrentTrackId(tracks[currentIndex + 1].id)
-      }
-    }
-  }
-
-  const handlePrevious = () => {
-    if (currentTrackId) {
-      const currentIndex = tracks.findIndex(
-        (track) => track.id === currentTrackId
-      )
-      if (currentIndex > 0) {
-        setCurrentTrackId(tracks[currentIndex - 1].id)
-      }
-    }
-  }
-
   return (
-    <div className="w-screen h-screen flex flex-col justify-center items-center">
+    <div className="w-screen h-screen flex flex-col justify-center items-center bg-amber-50">
       <h1 className="text-3xl text-amber-700 my-8">nice audio player</h1>
       <div className="w-1/2">
         {tracks.map((track) => (
