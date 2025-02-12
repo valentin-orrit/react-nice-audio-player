@@ -1,10 +1,6 @@
-import { tracks } from '../data/tracks'
-
 export default function AudioPlayer() {
-  console.log(tracks)
-
   return (
-    <div className="flex">
+    <div className="flex flex-col">
       <h2>audio player</h2>
     </div>
   )

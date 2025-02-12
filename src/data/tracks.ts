@@ -5,23 +5,39 @@ import percloop from './perc_loop 6 128bpm [2024-11-30 140924].wav'
 
 export const tracks = [
   {
+    id: 1,
     title: 'kick',
     author: 'val',
+    bpm: '150bpm',
+    key: 'Cmaj',
+    length: '0:45',
     src: kick,
   },
   {
+    id: 2,
     title: 'snare',
     author: 'val',
+    bpm: '120bpm',
+    key: 'F#min',
+    length: '1:35',
     src: snare,
   },
   {
+    id: 3,
     title: 'drumbreak',
     author: 'val',
+    bpm: '90bpm',
+    key: 'Gmaj',
+    length: '0:35',
     src: drumbreak,
   },
   {
+    id: 4,
     title: 'percloop',
     author: 'val',
+    bpm: '130bpm',
+    key: 'Emin',
+    length: '0:05',
     src: percloop,
   },
 ]
