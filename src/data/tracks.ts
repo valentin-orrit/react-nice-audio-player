@@ -10,7 +10,8 @@ export interface trackData {
   bpm: string
   key: string
   length: string
-  src: File
+  src: string
+  loop: boolean
 }
 
 export const tracks = [
@@ -22,6 +23,7 @@ export const tracks = [
     key: 'Cmaj',
     length: '0:45',
     src: kick,
+    loop: false,
   },
   {
     id: 2,
@@ -31,6 +33,7 @@ export const tracks = [
     key: 'F#min',
     length: '1:35',
     src: snare,
+    loop: false,
   },
   {
     id: 3,
@@ -40,6 +43,7 @@ export const tracks = [
     key: 'Gmaj',
     length: '0:35',
     src: drumbreak,
+    loop: true,
   },
   {
     id: 4,
@@ -49,5 +53,6 @@ export const tracks = [
     key: 'Emin',
     length: '0:05',
     src: percloop,
+    loop: true,
   },
 ]
