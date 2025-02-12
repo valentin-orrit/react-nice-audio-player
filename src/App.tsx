@@ -67,11 +67,7 @@ function App() {
           </button>
         ))}
       </div>
-      <AudioPlayer
-        currentTrack={currentTrack}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
+      <AudioPlayer currentTrack={currentTrack} />
     </div>
   )
 }
