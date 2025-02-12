@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import AudioPlayer from './components/AudioPlayer'
-import { tracks } from './data/tracks'
+import { tracks, trackData } from './data/tracks'
 import { Play } from 'lucide-react'
 
 function App() {
-  const [hoveredTrackId, setHoveredTrackId] = useState(null)
+  const [hoveredTrackId, setHoveredTrackId] = useState<trackData['id'] | null>(
+    null
+  )
 
   return (
     <div className="w-screen h-screen flex flex-col justify-center items-center">

@@ -3,6 +3,16 @@ import kick from './KICK [2024-11-29 125654].wav'
 import snare from './snare 2 [2024-11-29 142701].wav'
 import percloop from './perc_loop 6 128bpm [2024-11-30 140924].wav'
 
+export interface trackData {
+  id: number
+  title: string
+  author: string
+  bpm: string
+  key: string
+  length: string
+  src: File
+}
+
 export const tracks = [
   {
     id: 1,
