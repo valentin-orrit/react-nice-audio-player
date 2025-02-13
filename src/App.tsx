@@ -45,16 +45,16 @@ function App() {
             onMouseEnter={() => setHoveredTrackId(track.id)}
             onMouseLeave={() => setHoveredTrackId(null)}
             className={`grid grid-flow-col grid-cols-4 border border-gray-300 w-full px-4 py-1 my-1 rounded-xl hover:bg-amber-100 cursor-pointer ${
-              currentTrackId === track.id ? 'bg-amber-100' : ''
+              currentTrackId === track.id ? 'bg-white' : ''
             }`}
           >
             <div className="text-lg text-gray-800 font-semibold text-start">
               {track.title}
             </div>
             <div className="col-span-2 grid grid-flow-col grid-cols-3 gap-x-2">
-              <div className="text-gray-700">{track.length}</div>
-              <div className="text-gray-700">{track.key}</div>
-              <div className="text-gray-700 text-end">{track.bpm}</div>
+              <div className="text-gray-700 text-start">{`${track.length}s`}</div>
+              <div className="text-gray-700 text-start">{track.key}</div>
+              <div className="text-gray-700 text-start">{track.bpm}</div>
             </div>
             <div className="text-gray-500 text-end">
               {hoveredTrackId === track.id || currentTrackId === track.id ? (

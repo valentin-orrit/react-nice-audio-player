@@ -22,7 +22,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 }) => {
   const [volume, setVolume] = useState(1)
   const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
+  const [duration, setDuration] = useState(0.0)
 
   // Load track
   useEffect(() => {
@@ -32,7 +32,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         if (isPlaying) {
           audioController.play()
         }
-        setDuration(audioController.getDuration())
+        setDuration(currentTrack.length)
       })
     }
   }, [currentTrack])
@@ -113,7 +113,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             readOnly
           />
           <div className="text-sm text-gray-600">
-            <span>{formatTime(duration)}</span>
+            <span>{duration}s</span>
           </div>
         </div>
       )}
@@ -132,12 +132,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       </div>
     </div>
   )
-}
-
-function formatTime(time: number) {
-  const minutes = Math.floor(time / 60)
-  const seconds = Math.floor(time % 60)
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
 export default AudioPlayer

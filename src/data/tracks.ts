@@ -9,7 +9,7 @@ export interface trackData {
   author: string
   bpm: string
   key: string
-  length: string
+  length: number
   src: string
   loop: boolean
 }
@@ -21,7 +21,7 @@ export const tracks = [
     author: 'val',
     bpm: '150bpm',
     key: 'Cmaj',
-    length: '0:01',
+    length: 0.2,
     src: kick,
     loop: false,
   },
@@ -31,7 +31,7 @@ export const tracks = [
     author: 'val',
     bpm: '120bpm',
     key: 'F#min',
-    length: '0:01',
+    length: 0.2,
     src: snare,
     loop: false,
   },
@@ -41,7 +41,7 @@ export const tracks = [
     author: 'val',
     bpm: '90bpm',
     key: 'Gmaj',
-    length: '0:11',
+    length: 11.2,
     src: drumbreak,
     loop: true,
   },
@@ -51,7 +51,7 @@ export const tracks = [
     author: 'val',
     bpm: '130bpm',
     key: 'Emin',
-    length: '0:03',
+    length: 3.7,
     src: percloop,
     loop: true,
   },
