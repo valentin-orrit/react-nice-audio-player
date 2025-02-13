@@ -5,6 +5,7 @@ export class AudioController {
   private currentBuffer: AudioBuffer | null = null
   private isPlaying: boolean = false
   private loop: boolean = false
+  private playbackStartTime: number = 0
 
   constructor() {
     this.audioContext = new AudioContext()
@@ -27,6 +28,7 @@ export class AudioController {
     this.source.connect(this.gainNode)
     this.source.start()
     this.isPlaying = true
+    this.playbackStartTime = this.audioContext.currentTime
   }
 
   pause() {
@@ -53,7 +55,14 @@ export class AudioController {
     }
   }
 
-  isTrackPlaying() {
-    return this.isPlaying
+  getDuration() {
+    return this.currentBuffer ? this.currentBuffer.duration : 0
+  }
+
+  getCurrentTime() {
+    if (!this.isPlaying || !this.currentBuffer) return 0
+    const elapsed = this.audioContext.currentTime - this.playbackStartTime
+    const duration = this.currentBuffer.duration
+    return this.loop ? elapsed % duration : Math.min(elapsed, duration)
   }
 }

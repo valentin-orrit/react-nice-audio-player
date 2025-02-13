@@ -21,13 +21,17 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   onLoopChange,
 }) => {
   const [volume, setVolume] = useState(1)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
 
+  // Load track
   useEffect(() => {
     if (currentTrack) {
       audioController.loadTrack(currentTrack.src).then(() => {
         if (isPlaying) {
           audioController.play()
         }
+        setDuration(audioController.getDuration())
       })
     }
   }, [currentTrack])
@@ -35,6 +39,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   useEffect(() => {
     audioController.setLoop(isLooping)
   }, [isLooping])
+
+  // Set up an interval to update the current playback time
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isPlaying && currentTrack) {
+        setCurrentTime(audioController.getCurrentTime())
+      }
+    }, 100)
+    return () => clearInterval(interval)
+  }, [isPlaying, currentTrack])
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -52,7 +66,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   }
 
   return (
-    <div className="flex items-center justify-between gap-4 p-4 bg-white shadow rounded-xl w-2/3">
+    <div className="flex items-center justify-between gap-4 p-4 bg-white shadow rounded-2xl w-2/3">
       <div className="flex gap-2">
         <button
           onClick={handlePlayPause}
@@ -60,9 +74,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           disabled={!currentTrack}
         >
           {isPlaying ? (
-            <Pause size={24} className="text-amber-800" />
+            <Pause size={20} className="text-amber-800" />
           ) : (
-            <Play size={24} className="text-amber-800" />
+            <Play size={20} className="text-amber-800" />
           )}
         </button>
         <button
@@ -72,8 +86,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           } hover:bg-amber-100`}
         >
           <Repeat
-            size={20}
-            className={`${isLooping ? 'text-amber-800' : 'text-gray-400'}`}
+            size={16}
+            className={`${isLooping ? 'text-amber-800' : 'text-gray-500'}`}
           />
         </button>
       </div>
@@ -85,7 +99,28 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       ) : (
         <div className="flex items-center text-gray-500">select a track</div>
       )}
-      <div className="flex items-center gap-2">
+
+      {currentTrack && duration > 0 && (
+        <div className="w-full flex items-center gap-1 mx-4">
+          {/* <div className="text-sm text-gray-900">
+            <span>{formatTime(currentTime)}</span>
+          </div> */}
+          <input
+            type="range"
+            min="0"
+            max={duration}
+            step="0.1"
+            value={currentTime}
+            className="w-full accent-amber-700"
+            readOnly
+          />
+          <div className="text-sm text-gray-600">
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-center gap-2">
         <Volume2 size={24} className="text-amber-800" />
         <input
           type="range"
@@ -99,6 +134,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       </div>
     </div>
   )
+}
+
+function formatTime(time: number) {
+  const minutes = Math.floor(time / 60)
+  const seconds = Math.floor(time % 60)
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
 export default AudioPlayer
