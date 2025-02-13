@@ -4,16 +4,24 @@ import { trackData } from '../data/tracks'
 
 interface AudioPlayerProps {
   currentTrack?: trackData
+  isPlaying: boolean
+  isLooping: boolean
+  onPlayPause: (isPlaying: boolean) => void
+  onLoopChange: (isLooping: boolean) => void
   onNext?: () => void
   onPrevious?: () => void
 }
 
-const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
-  const [isPlaying, setIsPlaying] = useState(false)
+const AudioPlayer = ({
+  currentTrack,
+  isPlaying,
+  isLooping,
+  onPlayPause,
+  onLoopChange,
+}: AudioPlayerProps) => {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
-  const [isLooping, setIsLooping] = useState(false)
 
   // Refs for Web Audio API
   const audioContextRef = useRef<AudioContext | null>(null)
@@ -22,11 +30,8 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
   const audioBufferRef = useRef<AudioBuffer | null>(null)
   const startTimeRef = useRef<number>(0)
   const pausedAtRef = useRef<number>(0)
-
-  // Timer ref for updating current time
   const timeUpdateRef = useRef<number>(0)
 
-  // clean up audioContext
   useEffect(() => {
     return () => {
       if (audioContextRef.current?.state !== 'closed') {
@@ -35,22 +40,17 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
     }
   }, [])
 
-  // process when selecting a new track in the list
+  // Reset and load audio when track changes
   useEffect(() => {
     if (currentTrack) {
-      if (currentTrack.loop) {
-        setIsLooping(true)
-      } else {
-        setIsLooping(false)
-      }
-
       if (sourceNodeRef.current) {
         sourceNodeRef.current.stop()
       }
-
-      loadAudio().then(() => {
-        togglePlay()
-      })
+      pausedAtRef.current = 0
+      setCurrentTime(0)
+      setDuration(0)
+      audioBufferRef.current = null
+      loadAudio()
     }
     return () => {
       sourceNodeRef.current?.stop()
@@ -60,12 +60,29 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
     }
   }, [currentTrack])
 
+  // Handle play state changes
+  useEffect(() => {
+    if (audioBufferRef.current) {
+      if (isPlaying) {
+        createAndStartSource(pausedAtRef.current)
+        requestAnimationFrame(updatePlaybackTime)
+      } else {
+        sourceNodeRef.current?.stop()
+        pausedAtRef.current = currentTime
+        cancelAnimationFrame(timeUpdateRef.current)
+      }
+    }
+  }, [isPlaying])
+
+  // Handle loop state changes
+  useEffect(() => {
+    if (sourceNodeRef.current && isPlaying) {
+      createAndStartSource(currentTime)
+    }
+  }, [isLooping])
+
   const loadAudio = async () => {
     if (!currentTrack || !audioContextRef.current) return
-
-    setIsPlaying(false)
-    setCurrentTime(0)
-    pausedAtRef.current = 0
 
     try {
       const response = await fetch(currentTrack.src)
@@ -75,6 +92,11 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
       )
       audioBufferRef.current = audioBuffer
       setDuration(audioBuffer.duration)
+
+      if (isPlaying) {
+        createAndStartSource(0)
+        requestAnimationFrame(updatePlaybackTime)
+      }
     } catch (error) {
       console.error('Error loading audio:', error)
     }
@@ -93,6 +115,14 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
     sourceNodeRef.current.buffer = audioBufferRef.current
     sourceNodeRef.current.loop = isLooping
     sourceNodeRef.current.connect(gainNodeRef.current)
+
+    if (!isLooping) {
+      sourceNodeRef.current.onended = () => {
+        onPlayPause(false)
+        setCurrentTime(0)
+        pausedAtRef.current = 0
+      }
+    }
 
     startTimeRef.current = audioContextRef.current.currentTime - startFrom
     sourceNodeRef.current.start(0, startFrom)
@@ -116,26 +146,21 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
       await loadAudio()
     }
 
-    if (!audioBufferRef.current) return
-
-    if (isPlaying) {
-      sourceNodeRef.current?.stop()
-      pausedAtRef.current =
-        audioContextRef.current.currentTime - startTimeRef.current
-      cancelAnimationFrame(timeUpdateRef.current!)
-    } else {
-      createAndStartSource(pausedAtRef.current)
-      requestAnimationFrame(updatePlaybackTime)
-    }
-
-    setIsPlaying(!isPlaying)
+    onPlayPause(!isPlaying)
   }
+
   const updatePlaybackTime = () => {
     if (!audioContextRef.current || !isPlaying) return
 
     const currentTime =
       audioContextRef.current.currentTime - startTimeRef.current
-    setCurrentTime(currentTime)
+
+    if (audioBufferRef.current) {
+      const normalizedTime = isLooping
+        ? currentTime % audioBufferRef.current.duration
+        : Math.min(currentTime, audioBufferRef.current.duration)
+      setCurrentTime(normalizedTime)
+    }
 
     timeUpdateRef.current = requestAnimationFrame(updatePlaybackTime)
   }
@@ -174,7 +199,7 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
             )}
           </button>
           <button
-            onClick={() => setIsLooping(!isLooping)}
+            onClick={() => currentTrack && onLoopChange(!isLooping)}
             className={`p-2 rounded-full hover:bg-amber-100 ${
               isLooping ? 'bg-amber-100' : ''
             }`}
@@ -182,12 +207,18 @@ const AudioPlayer = ({ currentTrack }: AudioPlayerProps) => {
           >
             <Repeat
               size={20}
-              className={`${isLooping ? 'text-amber-800' : 'text-gray-400'}`}
+              className={`${
+                !currentTrack
+                  ? 'text-gray-300'
+                  : isLooping
+                  ? 'text-amber-800'
+                  : 'text-gray-400'
+              }`}
             />
           </button>
         </div>
         <h3 className="text-lg font-semibold text-gray-800">
-          {currentTrack?.title || 'select a track'}
+          {currentTrack?.title || 'No track selected'}
         </h3>
         <p className="text-sm text-gray-600">{currentTrack?.author}</p>
 

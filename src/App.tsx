@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AudioPlayer from './components/AudioPlayer'
 import { tracks, trackData } from './data/tracks'
 import { Play } from 'lucide-react'
@@ -10,8 +10,33 @@ function App() {
   const [currentTrackId, setCurrentTrackId] = useState<trackData['id'] | null>(
     null
   )
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isLooping, setIsLooping] = useState(false)
 
   const currentTrack = tracks.find((track) => track.id === currentTrackId)
+
+  // Reset loop state
+  useEffect(() => {
+    if (currentTrack) {
+      setIsLooping(currentTrack.loop)
+    } else {
+      setIsLooping(false)
+    }
+  }, [currentTrack])
+
+  const handleTrackClick = (trackId: trackData['id']) => {
+    const newTrack = tracks.find((track) => track.id === trackId)
+
+    if (currentTrackId === trackId) {
+      setIsPlaying(!isPlaying)
+    } else {
+      setCurrentTrackId(trackId)
+      if (newTrack) {
+        setIsLooping(newTrack.loop)
+      }
+      setIsPlaying(true)
+    }
+  }
 
   return (
     <div className="w-screen h-screen flex flex-col justify-center items-center bg-amber-50">
@@ -20,11 +45,11 @@ function App() {
         {tracks.map((track) => (
           <button
             key={track.id}
-            onClick={() => setCurrentTrackId(track.id)}
+            onClick={() => handleTrackClick(track.id)}
             onMouseEnter={() => setHoveredTrackId(track.id)}
             onMouseLeave={() => setHoveredTrackId(null)}
             className={`grid grid-flow-col grid-cols-4 border border-gray-300 w-full px-4 py-1 my-1 rounded-xl hover:bg-amber-100 cursor-pointer ${
-              currentTrackId === track.id ? 'bg-white' : ''
+              currentTrackId === track.id ? 'bg-amber-100' : ''
             }`}
           >
             <div className="text-lg text-gray-800 font-semibold text-start">
@@ -45,7 +70,13 @@ function App() {
           </button>
         ))}
       </div>
-      <AudioPlayer currentTrack={currentTrack} />
+      <AudioPlayer
+        currentTrack={currentTrack}
+        isPlaying={isPlaying}
+        isLooping={isLooping}
+        onPlayPause={setIsPlaying}
+        onLoopChange={setIsLooping}
+      />
     </div>
   )
 }
