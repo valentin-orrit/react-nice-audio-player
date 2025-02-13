@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AudioController } from '../utils/audioUtils'
+import { AudioController } from '../utils/audioController'
 import { Play, Pause, Repeat, Volume2 } from 'lucide-react'
 import { trackData } from '../data/tracks'
 
@@ -28,6 +28,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   useEffect(() => {
     if (currentTrack) {
       audioController.loadTrack(currentTrack.src).then(() => {
+        setCurrentTime(0)
         if (isPlaying) {
           audioController.play()
         }
@@ -102,9 +103,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
       {currentTrack && duration > 0 && (
         <div className="w-full flex items-center gap-1 mx-4">
-          {/* <div className="text-sm text-gray-900">
-            <span>{formatTime(currentTime)}</span>
-          </div> */}
           <input
             type="range"
             min="0"

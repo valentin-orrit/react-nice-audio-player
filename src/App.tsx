@@ -27,14 +27,10 @@ function App() {
   const handleTrackClick = (trackId: trackData['id']) => {
     const newTrack = tracks.find((track) => track.id === trackId)
 
-    if (currentTrackId === trackId) {
-      setIsPlaying(!isPlaying)
-    } else {
-      setCurrentTrackId(trackId)
-      setIsPlaying(true) // Set isPlaying to true immediately
-      if (newTrack) {
-        setIsLooping(newTrack.loop)
-      }
+    setCurrentTrackId(trackId)
+    setIsPlaying(true)
+    if (newTrack) {
+      setIsLooping(newTrack.loop)
     }
   }
 
