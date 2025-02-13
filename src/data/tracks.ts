@@ -12,7 +12,7 @@ export interface trackData {
   length: number
   src: string
   loop: boolean
-  waveform: JSON
+  waveform: { data: number[] }
 }
 
 export const tracks = [
