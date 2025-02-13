@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
+import { Play } from 'lucide-react'
 import AudioPlayer from './components/AudioPlayer'
 import { tracks, trackData } from './data/tracks'
-import { Play } from 'lucide-react'
+import Waveform from './components/Waveform'
 
 function App() {
   const [hoveredTrackId, setHoveredTrackId] = useState<trackData['id'] | null>(
@@ -51,6 +52,7 @@ function App() {
             <div className="text-lg text-gray-800 font-semibold text-start">
               {track.title}
             </div>
+            <Waveform data={track.waveform.data} />
             <div className="col-span-2 grid grid-flow-col grid-cols-3 gap-x-2">
               <div className="text-gray-700 text-start">{`${track.length}s`}</div>
               <div className="text-gray-700 text-start">{track.key}</div>
