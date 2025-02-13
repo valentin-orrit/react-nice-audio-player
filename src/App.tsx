@@ -31,17 +31,17 @@ function App() {
       setIsPlaying(!isPlaying)
     } else {
       setCurrentTrackId(trackId)
+      setIsPlaying(true) // Set isPlaying to true immediately
       if (newTrack) {
         setIsLooping(newTrack.loop)
       }
-      setIsPlaying(true)
     }
   }
 
   return (
     <div className="w-screen h-screen flex flex-col justify-center items-center bg-amber-50">
       <h1 className="text-3xl text-amber-700 my-8">nice audio player</h1>
-      <div className="w-1/2">
+      <div className="w-2/3 mb-4">
         {tracks.map((track) => (
           <button
             key={track.id}
