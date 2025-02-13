@@ -6,6 +6,7 @@ export class AudioController {
   private isPlaying: boolean = false
   private loop: boolean = false
   private playbackStartTime: number = 0
+  private currentOffset: number = 0
 
   constructor() {
     this.audioContext = new AudioContext()
@@ -17,6 +18,7 @@ export class AudioController {
     const response = await fetch(url)
     const arrayBuffer = await response.arrayBuffer()
     this.currentBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
+    this.currentOffset = 0
   }
 
   play() {
@@ -26,12 +28,16 @@ export class AudioController {
     this.source.buffer = this.currentBuffer
     this.source.loop = this.loop
     this.source.connect(this.gainNode)
-    this.source.start()
+    this.playbackStartTime = this.audioContext.currentTime - this.currentOffset
+    this.source.start(0, this.currentOffset)
     this.isPlaying = true
-    this.playbackStartTime = this.audioContext.currentTime
   }
 
   pause() {
+    if (this.isPlaying && this.currentBuffer) {
+      this.currentOffset =
+        this.audioContext.currentTime - this.playbackStartTime
+    }
     this.stop()
     this.isPlaying = false
   }
@@ -55,14 +61,27 @@ export class AudioController {
     }
   }
 
-  getDuration() {
-    return this.currentBuffer ? this.currentBuffer.duration : 0
+  seek(time: number) {
+    if (!this.currentBuffer) return
+    this.currentOffset = time
+    if (this.isPlaying) {
+      this.stop()
+      this.source = this.audioContext.createBufferSource()
+      this.source.buffer = this.currentBuffer
+      this.source.loop = this.loop
+      this.source.connect(this.gainNode)
+      this.playbackStartTime =
+        this.audioContext.currentTime - this.currentOffset
+      this.source.start(0, this.currentOffset)
+    }
   }
 
   getCurrentTime() {
-    if (!this.isPlaying || !this.currentBuffer) return 0
-    const elapsed = this.audioContext.currentTime - this.playbackStartTime
-    const duration = this.currentBuffer.duration
-    return this.loop ? elapsed % duration : Math.min(elapsed, duration)
+    if (this.isPlaying && this.currentBuffer) {
+      const elapsed = this.audioContext.currentTime - this.playbackStartTime
+      const duration = this.currentBuffer.duration
+      return this.loop ? elapsed % duration : Math.min(elapsed, duration)
+    }
+    return this.currentOffset
   }
 }

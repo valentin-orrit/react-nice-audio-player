@@ -66,6 +66,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     audioController.setVolume(volume)
   }
 
+  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(e.target.value)
+    setCurrentTime(newTime)
+    audioController.seek(newTime)
+  }
+
   return (
     <div className="flex items-center justify-between gap-4 p-4 bg-white shadow rounded-2xl w-2/3">
       <div className="flex gap-2">
@@ -109,6 +115,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             max={duration}
             step="0.1"
             value={currentTime}
+            onChange={handleSeekChange}
             className="w-full accent-amber-700"
             readOnly
           />
