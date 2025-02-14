@@ -116,8 +116,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             step="0.1"
             value={currentTime}
             onChange={handleSeekChange}
-            className="w-full accent-amber-700"
-            readOnly
+            className="w-full accent-amber-700 cursor-pointer"
           />
           <div className="text-sm text-gray-600">
             <span>{duration}s</span>
