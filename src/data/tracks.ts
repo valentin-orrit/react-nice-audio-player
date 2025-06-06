@@ -6,9 +6,9 @@ import percloop from './perc_loop 6 128bpm [2024-11-30 140924].wav'
 export interface trackData {
   id: number
   title: string
-  author: string
-  bpm: string
-  key: string
+  author?: string
+  bpm?: string
+  key?: string
   length: number
   src: string
   loop: boolean

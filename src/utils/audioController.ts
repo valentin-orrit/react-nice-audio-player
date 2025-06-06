@@ -15,10 +15,23 @@ export class AudioController {
   }
 
   async loadTrack(url: string) {
-    const response = await fetch(url)
-    const arrayBuffer = await response.arrayBuffer()
-    this.currentBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
-    this.currentOffset = 0
+    try {
+      const response = await fetch(url, {
+        mode: 'cors',
+        credentials: 'omit',
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const arrayBuffer = await response.arrayBuffer()
+      this.currentBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
+      this.currentOffset = 0
+    } catch (error) {
+      console.error('Error loading audio track:', error)
+      throw error
+    }
   }
 
   play() {
